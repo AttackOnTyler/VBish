@@ -13,29 +13,13 @@ Option Explicit
 Private Declare PtrSafe Function FindWindowA Lib "user32" (ByVal lpClassName As String, ByVal lpWindowName As String) As LongPtr
 Private Declare PtrSafe Function FindWindowExA Lib "user32" (ByVal hWnd1 As LongPtr, ByVal hWnd2 As LongPtr, ByVal lpsz1 As String, ByVal lpsz2 As String) As LongPtr
 Private Declare PtrSafe Function PostMessageA Lib "user32" (ByVal hwnd As LongPtr, ByVal wMsg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr) As Long
-Private Declare PtrSafe Function SendMessageA Lib "user32" (ByVal hwnd As LongPtr, ByVal wMsg As Long, ByVal wParam As LongPtr, ByVal lParam As LongPtr) As Long
-Private Declare PtrSafe Function GetUserDefaultLCID Lib "kernel32" () As Long
-Private Declare PtrSafe Function SendInput Lib "user32.dll" (ByVal nInputs As Long, ByRef pInputs As Any, ByVal cbSize As Long) As Long
 Private Declare PtrSafe Sub keybd_event Lib "user32" (ByVal bVk As Byte, ByVal bScan As Byte, ByVal dwFlags As Long, ByVal dwExtraInfo As LongPtr)
 
-Private Type KeyboardInput
-    dwType As Long
-    wVk As Integer
-    wScan As Integer
-    dwFlags As Long
-    dwTime As Long
-    dwExtraInfo As LongPtr
-    dwPadding As Currency
-End Type
-
 Private Const WM_ACTIVATE As Long = &H6
-Private Const WM_KEYDOWN = &H100
-Private Const WM_KEYUP = &H101
-Private Const INPUT_KEYBOARD As Long = &H1
 Private Const KEYEVENTF_KEYUP As Long = &H2
 Private Const VK_CONTROL As Integer = &H11
-Private Const VK_A As Integer = &H41
-Private Const VK_DELETE As Integer = &H2E
+Private Const ERR_HANDLES_NOT_VALID As String = "Error: Invalid window handles." & vbNewLine & vbNewLine & _
+                                                "Run `? ish.start()` to rebind the Immediate Window"
 
 Private Type TImmediateWindowManager
     hwndVBE As LongPtr
@@ -52,6 +36,14 @@ Private Sub Class_Initialize()
     With this
         .hwndVBE = FindWindowA("wndclass_desked_gsk", vbNullString)
         .hwndImmediate = GetHWNDImmediate(.hwndVBE)
+    End With
+    
+    If handlesNotValid Then
+        Class_Terminate
+        Err.Raise vbObjectError + 513, "iwctl::Class_Initialize", "Failed to bind to the Immediate Window." & vbNewLine & vbNewLine & "Is the Immediate Window open?"
+    End If
+    
+    With this
         Set .localFileSync = New localSync
         Set .fso = New Scripting.FileSystemObject
         .currentwd = .fso.GetParentFolderName(.localFileSync.path(ThisWorkbook.fullname))
@@ -69,45 +61,57 @@ Private Function GetHWNDImmediate(ByVal hwndVBE As LongPtr) As LongPtr
 End Function
 
 Private Sub Class_Terminate()
-    this.hwndImmediate = 0
-    this.hwndVBE = 0
+    With this
+        .hwndImmediate = 0
+        .hwndVBE = 0
+        Set .localFileSync = Nothing
+        Set .fso = Nothing
+    End With
 End Sub
 
-Public Sub clear()
+Private Function handlesNotValid() As Boolean
+    handlesNotValid = this.hwndVBE = 0 Or this.hwndImmediate = 0
+End Function
+
+Public Function clear() As String
+    If handlesNotValid Then clear = ERR_HANDLES_NOT_VALID: Exit Function
     PostMessageA this.hwndImmediate, WM_ACTIVATE, 1, 0&
     Application.SendKeys "{F16}"
     SendCtrlA
     SendDelete
     Application.SendKeys "{F16}"
-End Sub
+End Function
 
-Public Sub banner()
+Public Function banner() As String
+    If handlesNotValid Then banner = ERR_HANDLES_NOT_VALID: Exit Function
     Debug.Print "{I)mmediate Window (SH)ell" & vbNewLine & _
                 "ProcessPioneer Solutions (c)" & vbNewLine & vbNewLine
-End Sub
+End Function
 
-Public Sub headerbar()
+Public Function headerbar() As String
+    If handlesNotValid Then headerbar = ERR_HANDLES_NOT_VALID: Exit Function
     Debug.Print this.currentwd & ">" & vbNewLine & _
                 "? "
     SendBackspace
-End Sub
+End Function
 
-Private Sub SendCtrlA()
-
+Private Function SendCtrlA() As String
+    If handlesNotValid Then SendCtrlA = ERR_HANDLES_NOT_VALID: Exit Function
     keybd_event VK_CONTROL, 0, 0, 0
     keybd_event vbKeyA, 0, 0, 0
     keybd_event vbKeyA, 0, KEYEVENTF_KEYUP, 0
     keybd_event VK_CONTROL, 0, KEYEVENTF_KEYUP, 0
-   
-End Sub
+End Function
 
-Private Sub SendDelete()
+Private Function SendDelete() As String
+    If handlesNotValid Then SendDelete = ERR_HANDLES_NOT_VALID: Exit Function
     keybd_event vbKeyDelete, 0, 0, 0
     keybd_event vbKeyDelete, 0, KEYEVENTF_KEYUP, 0
-End Sub
+End Function
 
-Private Sub SendBackspace()
+Private Function SendBackspace() As String
+    If handlesNotValid Then SendBackspace = ERR_HANDLES_NOT_VALID: Exit Function
     keybd_event vbKeyBack, 0, 0, 0
     keybd_event vbKeyBack, 0, KEYEVENTF_KEYUP, 0
-End Sub
+End Function
 
