@@ -23,7 +23,7 @@
   - Implement additional common command execution within the Immediate Window (e.g., ish.ls/dir, ish.cd).
   - Test and refine the execution of these commands in diverse Office environments (e.g., Outlook, Word, PowerPoint).
 
-### Beta Phase (v0.6.x - v0.9.x)
+## Beta Phase (v0.6.x - v0.9.x)
 
 - Project Manager AddIn (v0.6.0)
   - Develop the Project Manager as the first official package, utilizing the package manager and configuration manager.
@@ -37,19 +37,19 @@
   - Conduct extensive testing across all functionalities, focusing on stability, performance, and security.
   - Write comprehensive documentation, including user guides, API documentation, and developer guides.
 
-### Release Candidate (v0.10.x)
+## Release Candidate (v0.10.x)
 
 - Polishing and Bug (v0.10.0)
   - Address all known bugs and polish user experience based on beta feedback.
   - Finalize all documentation and prepare marketing materials for launch.
 
-### Version 1.0.0 - Official Release
+## Version 1.0.0 - Official Release
 
 - Launch (v1.0.0)
   - Officially release the ish core, package manager, and Project Manager AddIn.
   - Promote the release through relevant channels to the VBA and Excel communities.
 
-### Post-Release (v1.1.x and beyond)
+## Post-Release (v1.1.x and beyond)
 
 - Feedback Loop and Iterations (v1.1.0)
   - Collect user feedback and prioritize new features or commands for future updates.
