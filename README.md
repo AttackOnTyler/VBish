@@ -1,5 +1,7 @@
 # VBish
 
+This feature branch is just a test for another project, don't worry about this branch.
+
 (I)mmediate Window (SH)ell for VBA
 
 ## About ish
